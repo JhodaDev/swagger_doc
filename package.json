@@ -6,6 +6,10 @@
   "engines": {
     "vscode": "^1.83.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JhodaDev/swagger_doc"
+  },
   "categories": [
     "Other"
   ],
@@ -17,6 +21,26 @@
         {
           "command": "swaggerdoc.generateDoc",
           "when": "editorHasSelection"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "swaggerdoc",
+          "title": "SwaggerDoc",
+          "icon": "resources/swagger.svg"
+        }
+      ]
+    },
+    "views": {
+      "swaggerdoc": [
+        {
+          "id": "swaggerdocView",
+          "name": "SwaggerDoc",
+          "when": "true",
+          "icon": "resources/swagger.svg",
+          "type": "tree"
         }
       ]
     },
@@ -39,8 +63,7 @@
     "@vscode/test-electron": "^2.3.4",
     "eslint": "^8.50.0",
     "glob": "^10.3.3",
-    "mocha": "^10.2.0",
-    "typescript": "^5.2.2"
+    "mocha": "^10.2.0"
   },
   "dependencies": {
     "acorn": "^8.10.0",

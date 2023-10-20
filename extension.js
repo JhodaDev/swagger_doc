@@ -3,7 +3,7 @@
 const vscode = require('vscode');
 const acorn = require('acorn');
 const walk = require('acorn-walk');
-const Provider = require('./src/Provider');
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 
@@ -11,15 +11,39 @@ const Provider = require('./src/Provider');
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+  // Use the console to output diagnostic information (console.log) and errors (console.error)
+  // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "swaggerdoc" is now active!');
+
+  // The command has been defined in the package.json file
+  // Now provide the implementation of the command with  registerCommand
+  // The commandId parameter must match the command field in package.json
+  let disposable = vscode.commands.registerCommand('swaggerdoc.helloWorld', function () {
+    // The code you place here will be executed every time your command is executed
+
+    // Display a message box to the user
+    vscode.window.showInformationMessage('Hello World from swaggerdoc!');
+  });
+
+  context.subscriptions.push(disposable);
 }
 
 vscode.commands.registerCommand('swaggerdoc.generateDoc', async function () {
   // hacer unas preguntas antes de analizar el codigo como el metodo de la funcion la ruta y dempas
-  const endpoint = await getInput('Ingrese la ruta del endpoint (ejemplo: /api/v1/endpoint)')
-  const method = await getInput('Ingrese el metodo del endpoint (ejemplo: GET, POST, PUT, DELETE)')
-  const tag = await getInput('Ingrese el tag del endpoint (ejemplo: User, Auth, etc)')
-  const description = await getInput('Ingrese la descripcion del endpoint (ejemplo: Crea un nuevo usuario)')
+  const endpoint = await vscode.window.showInputBox({
+    ignoreFocusOut: true,
+    placeHolder: 'Ingrese la ruta del endpoint',
+  });
+
+  const method = await vscode.window.showInputBox({
+    ignoreFocusOut: true,
+    placeHolder: 'Ingrese el metodo del endpoint',
+  });
+
+  const tag = await vscode.window.showInputBox({
+    ignoreFocusOut: true,
+    placeHolder: 'Ingrese el tag del endpoint',
+  });
 
   const editor = vscode.window.activeTextEditor;
 
@@ -42,6 +66,7 @@ vscode.commands.registerCommand('swaggerdoc.generateDoc', async function () {
         if (node.type === 'VariableDeclaration') {
           node.declarations.forEach((declaration) => {
             const value = declaration;
+            console.log(value)
             let isBody = value.init && value.init.type === 'MemberExpression' && value.init.object.name === 'req' && value.init.property.name === 'body';
             if (isBody) {
               const properties = value.id.type === 'ObjectPattern' ? value.id.properties : value.id;
@@ -49,10 +74,10 @@ vscode.commands.registerCommand('swaggerdoc.generateDoc', async function () {
                 if (!body.includes(property.key.name)) {
                   body.push(property.key.name);
                 }
-              }
+              }   
             }
 
-            isBody = value.init && value?.init?.type === 'MemberExpression' && value.init.object.object.name === 'req' && value.init.object.property.name === 'body';
+            isBody = value.init && value?.init?.type === 'MemberExpression' && value?.init?.object?.object?.name === 'req' && value.init.object.property.name === 'body';
             if (isBody) body.push(value.init.property.name);
 
             const isQueryParams = value.init && value.init.type === 'MemberExpression' && value.init.object.name === 'req' && value.init.property.name === 'query';
@@ -140,7 +165,8 @@ vscode.commands.registerCommand('swaggerdoc.generateDoc', async function () {
       ReturnStatement: extractInfo,
     });
 
-    const doc = generateSwaggerDocumentation(endpoint, method, tag, description, body, queryParams, statusCode);
+
+    const doc = generateSwaggerDocumentation(endpoint, method, tag, 'description', body, queryParams, statusCode);
 
     // mostrar una previsualizacion del doc
     const docPreview = vscode.window.showTextDocument(vscode.Uri.parse('untitled:' + 'newDoc.js'), {
@@ -156,15 +182,6 @@ vscode.commands.registerCommand('swaggerdoc.generateDoc', async function () {
   }
 });
 
-
-const getInput = async (placeholder) => {
-  const input = await vscode.window.showInputBox({
-    ignoreFocusOut: true,
-    placeHolder: placeholder,
-  });
-  return input
-}
-
 function generateSwaggerDocumentation(endpoint, method, tag, description, body, queryParams, statusCode) {
   let doc = `
 /**
@@ -178,7 +195,7 @@ function generateSwaggerDocumentation(endpoint, method, tag, description, body, 
  *      - ApiKeyAuth: []
 `;
 
-  if (method.toLowerCase() === 'post' && body.length > 0) {
+  if (body.length > 0) {
     doc += `
  *    requestBody:
  *      content:
