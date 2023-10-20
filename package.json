@@ -2,7 +2,7 @@
   "name": "swaggerdoc",
   "displayName": "swaggerdoc",
   "description": "This extension is perfect to generating swagger documentation mucho faster",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.83.0"
   },
